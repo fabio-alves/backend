@@ -1,6 +1,6 @@
 import { HttpRequest, HttpResponse } from "./protocols/http";
 import { MissingParamsError } from "../erros/missingParamsError";
-import { badRequest } from "../helpers/httpHelper";
+import { badRequest, serverError } from "../helpers/httpHelper";
 import { Controller } from "./protocols/controller";
 import { AddUser } from "../../domain/useCase/addUser";
 
@@ -26,7 +26,7 @@ export class SignupController implements Controller {
         password,
       });
     } catch (error) {
-      console.log(error);
+      return serverError();
     }
   }
 }

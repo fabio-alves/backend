@@ -2,6 +2,7 @@ import { SignupController } from './signUpController';
 import { MissingParamsError } from '../erros/missingParamsError';
 import { AddUser, AddUserModel} from '../../domain/useCase/addUser';
 import { UserModel } from '../../domain/models/userModel';
+import { ServerError } from '../erros/serverError';
 
 interface SutTypes {
   sut: SignupController,
@@ -75,5 +76,21 @@ describe('signupController', () => {
       name: 'anyName',
       password: 'anyPassword',
     });
+  });
+
+  test('should return 500 if AddUser throws', () => {
+    const { sut, addUserStub } = makeSut();
+    jest.spyOn(addUserStub, 'addUser').mockImplementationOnce(() => {
+      throw new Error();
+    });
+    const httpRequest = {
+      body: {
+        name: 'anyName',
+        password: 'anyPassword',
+      },
+    };
+    const httpResponse = sut.handle(httpRequest);
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
   });
 });
