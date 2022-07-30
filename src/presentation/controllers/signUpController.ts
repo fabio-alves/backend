@@ -1,6 +1,6 @@
 import { HttpRequest, HttpResponse } from "./protocols/http";
 import { MissingParamsError } from "../erros/missingParamsError";
-import { badRequest, serverError } from "../helpers/httpHelper";
+import { badRequest, serverError, sucessRequest } from "../helpers/httpHelper";
 import { Controller } from "./protocols/controller";
 import { AddUser } from "../../domain/useCase/addUser";
 
@@ -25,10 +25,7 @@ export class SignupController implements Controller {
         name,
         password,
       });
-      return {
-        statusCode: 200,
-        body: user,
-      };
+      return sucessRequest(user);
     } catch (error) {
       return serverError();
     }
