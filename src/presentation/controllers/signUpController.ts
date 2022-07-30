@@ -21,10 +21,14 @@ export class SignupController implements Controller {
       }
       const { name, password } = httpRequest.body;
 
-      this.addUser.addUser({
+      const user = this.addUser.addUser({
         name,
         password,
       });
+      return {
+        statusCode: 200,
+        body: user,
+      };
     } catch (error) {
       return serverError();
     }
