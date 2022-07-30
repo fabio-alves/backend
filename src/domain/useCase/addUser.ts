@@ -5,5 +5,5 @@ export interface AddUserModel {
   password: string
 }
 export interface AddUser {
-  addUser(user: AddUserModel): UserModel
+  addUser(user: AddUserModel): Promise<UserModel>
 }

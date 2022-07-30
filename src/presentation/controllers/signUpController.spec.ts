@@ -11,13 +11,13 @@ interface SutTypes {
 
 const makeAddUser = (): AddUser => {
   class AddUserStub implements AddUser {
-    addUser(user: AddUserModel): UserModel {
+    async addUser(user: AddUserModel): Promise<UserModel> {
       const fakeUser = {
         id: 'validId',
         name: 'validName',
         password: 'validPassword',
       };
-      return fakeUser;
+      return new Promise((resolve) => resolve(fakeUser));
     }
   }
   return new AddUserStub();
@@ -35,7 +35,7 @@ const makeSut = (): SutTypes => {
 };
 
 describe('signupController', () => {
-  test('should return 400 if no name is provided', () => {
+  test('should return 400 if no name is provided', async () => {
     const { sut } = makeSut();
     const httpRequest = {
       body: {
@@ -44,24 +44,24 @@ describe('signupController', () => {
         passwordConfirmation: 'any_password',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamsError('name'));
   });
 
-  test('should return 400 if no password is provided', () => {
+  test('should return 400 if no password is provided', async () => {
     const { sut } = makeSut();
     const httpRequest = {
       body: {
         name: 'anyName',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamsError('password'));
   });
 
-  test('should call AddUser with correct values', () => {
+  test('should call AddUser with correct values', async () => {
     const { sut, addUserStub } = makeSut();
     const addUserSpy = jest.spyOn(addUserStub, 'addUser');
     const httpRequest = {
@@ -70,17 +70,17 @@ describe('signupController', () => {
         password: 'anyPassword',
       },
     };
-    sut.handle(httpRequest);
+    await sut.handle(httpRequest);
     expect(addUserSpy).toHaveBeenCalledWith({
       name: 'anyName',
       password: 'anyPassword',
     });
   });
 
-  test('should return 500 if AddUser throws', () => {
+  test('should return 500 if AddUser throws', async () => {
     const { sut, addUserStub } = makeSut();
     jest.spyOn(addUserStub, 'addUser').mockImplementationOnce(() => {
-      throw new Error();
+     return new Promise((resolve, reject) => reject(new Error()))
     });
     const httpRequest = {
       body: {
@@ -88,12 +88,12 @@ describe('signupController', () => {
         password: 'anyPassword',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
   });
 
-  test('should return 200 if valid data provided', () => {
+  test('should return 200 if valid data provided', async () => {
     const { sut } = makeSut();
     const httpRequest = {
       body: {
@@ -101,7 +101,7 @@ describe('signupController', () => {
         password: 'validPassword',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(200);
     expect(httpResponse.body).toEqual({
       id: 'validId',

@@ -11,7 +11,7 @@ export class SignupController implements Controller {
     this.addUser = addUser;
   }
 
-  handle(httpRequest: HttpRequest): HttpResponse {
+  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const requiredFields = ["name", "password"];
       for (const field of requiredFields) {
@@ -21,7 +21,7 @@ export class SignupController implements Controller {
       }
       const { name, password } = httpRequest.body;
 
-      const user = this.addUser.addUser({
+      const user = await this.addUser.addUser({
         name,
         password,
       });
