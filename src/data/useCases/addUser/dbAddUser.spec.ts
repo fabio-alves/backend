@@ -1,9 +1,14 @@
+// eslint-disable-next-line max-classes-per-file
+import { UserModel } from '../../../domain/models/userModel';
+import { AddUserModel } from '../../../domain/useCase/addUser';
 import { Encrypter } from '../../protocols/encrypter';
 import { DbAddUser } from './dbAddUser';
+import { AddUserRepository } from '../../protocols/addUserRepository';
 
 interface SutTypes {
   sut: DbAddUser,
   encrypterStub: Encrypter,
+  addUserRepositoryStub: AddUserRepository,
 }
 
 const makeEncrypter = (): Encrypter => {
@@ -15,12 +20,28 @@ const makeEncrypter = (): Encrypter => {
   return new EncrypterStub();
 };
 
+const makeAddUserRepository = (): AddUserRepository => {
+  class AddUserRepositoryStub implements AddUserRepository {
+    async addUserRepository(userData: AddUserModel): Promise<UserModel> {
+      const fakeUser = {
+        id: 'validId',
+        name: 'validName',
+        password: 'hasehdPassword',
+      };
+      return new Promise(resolve => resolve(fakeUser));
+    }
+  }
+  return new AddUserRepositoryStub();
+};
+
 const makeSut = (): SutTypes => {
   const encrypterStub = makeEncrypter();
-  const sut = new DbAddUser(encrypterStub);
+  const addUserRepositoryStub = makeAddUserRepository();
+  const sut = new DbAddUser(encrypterStub, addUserRepositoryStub);
   return {
     sut,
     encrypterStub,
+    addUserRepositoryStub,
   };
 };
 
@@ -45,5 +66,19 @@ describe('DbAddUserUseCase', () => {
     };
     const promiseUser = sut.addUser(userData);
     await expect(promiseUser).rejects.toThrow();
+  });
+
+  test('should call addUserRepository with correct values', async () => {
+    const { sut, addUserRepositoryStub } = makeSut();
+    const addUserRepositorySpy = jest.spyOn(addUserRepositoryStub, 'addUserRepository');
+    const userData = {
+      name: 'validName',
+      password: 'validPassword',
+    };
+    await sut.addUser(userData);
+    expect(addUserRepositorySpy).toHaveBeenCalledWith({
+      name: 'validName',
+      password: 'hasehdPassword',
+    });
   });
 });
