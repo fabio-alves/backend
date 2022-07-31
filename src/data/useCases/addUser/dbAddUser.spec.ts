@@ -81,4 +81,18 @@ describe('DbAddUserUseCase', () => {
       password: 'hasehdPassword',
     });
   });
+
+  test('should return an account with sucess', async () => {
+    const { sut } = makeSut();
+    const userData = {
+      name: 'validName',
+      password: 'validPassword',
+    };
+    const user = await sut.addUser(userData);
+    expect(user).toEqual({
+      id: 'validId',
+      name: 'validName',
+      password: 'hasehdPassword',
+    });
+  });
 });
