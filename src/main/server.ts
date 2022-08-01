@@ -7,11 +7,10 @@ import  bodyParser  from 'body-parser'
 
 const app = express();
 app.use(bodyParser.json());
-app.listen(3333, () => console.log('agora vai'));
+app.listen(3333, () => console.log('Server Up'));
 
 app.post('/signup', async (req, res) => {
   try{
-    console.log('entrou no signup');
   const userMongoRepository = new UserMongoRepository();
   const bcryptAdapter = new BcryptAdapter(12);
 
