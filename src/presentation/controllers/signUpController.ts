@@ -13,6 +13,7 @@ export class SignupController implements Controller {
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
+      console.log(' value of httpquest ::: ', httpRequest.body)
       const requiredFields = ["name", "password"];
       for (const field of requiredFields) {
         if (!httpRequest.body[field]) {
@@ -27,6 +28,7 @@ export class SignupController implements Controller {
       });
       return sucessRequest(user);
     } catch (error) {
+      console.log(' value of error :::', error);
       return serverError();
     }
   }

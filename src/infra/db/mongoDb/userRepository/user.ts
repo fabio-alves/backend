@@ -5,9 +5,13 @@ import { MongoHelper } from '../helpers/mongoHelper';
 
 export class UserMongoRepository implements AddUserRepository {
   async addUserRepository(UserData: AddUserModel): Promise<UserModel> {
+    await MongoHelper.connect(process.env.MONGO_CONNECTION);
     const userCollection = MongoHelper.getCollection('users');
     const result = await userCollection.insertOne(UserData);
-    const user = result.ops[0];
-    return user;
+    return {
+      id: result.insertedId.toString(),
+      name: UserData.name,
+      password: UserData.password,
+    };
   }
 }
